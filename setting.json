@@ -1,0 +1,6 @@
+{
+    "url" : "opc.tcp://localhost:49320",
+    "maxRetry": 0,
+    "initialDelay": 100,
+    "maxDelay": 1000
+}
