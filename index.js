@@ -1,6 +1,5 @@
 import express from 'express';
-import chalk from 'chalk';
-import {main, readString, readBool, readInt, readFloat} from './Controllers/OPC-UA.js';
+import {main, readString, readBool, readInt, readFloat} from './Controllers/OPC_UAControl.js';
 
 const app = express();
 const port = 3012;

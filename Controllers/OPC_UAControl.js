@@ -1,7 +1,8 @@
 import opcua from 'node-opcua';
 import async from 'async';
 import chalk from 'chalk';
-import TypeModel from '../Models/TypeValueModel.js'
+//import TypeModel from '../Models/TypeValueModel.js'
+
 
 var endpointUrl = "opc.tcp://localhost:49320";
 var client;
