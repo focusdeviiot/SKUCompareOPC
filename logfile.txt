@@ -1,0 +1,1 @@
+26/19/2022 11:19:27  ReadSetting : {"url":"opc.tcp://127.0.0.1:49320","maxRetry":0,"initialDelay":100,"maxDelay":1000}

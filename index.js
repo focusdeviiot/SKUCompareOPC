@@ -1,11 +1,13 @@
 import express from 'express';
 import {main, readString, readBool, readInt, readFloat} from './Controllers/OPC_UAControl.js';
+//import * as OPCUA from './Controllers/OPC_UAControl.js';
+import { ReadSettingsJson, WriteLogFlie } from './Controllers/WRJsonControl.js';
 
 const app = express();
 const port = 3012;
 
 
-main();
+main(ReadSettingsJson());
 
 app.get('/', async (req, res) => {
     var ssss = await readString();
@@ -33,4 +35,5 @@ app.get('/float', async (req, res) => {
 
 app.listen(port, () => {
     console.log(`Listening at http://localhost:${port}`);
+    WriteLogFlie('String API Listening at http://localhost:${port}')
 });

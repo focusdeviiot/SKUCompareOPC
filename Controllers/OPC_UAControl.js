@@ -1,70 +1,13 @@
 import opcua from 'node-opcua';
 import async from 'async';
-import chalk from 'chalk';
+import { WriteLogFlie } from './WRJsonControl.js';
 //import TypeModel from '../Models/TypeValueModel.js'
 
 
-var endpointUrl = "opc.tcp://localhost:49320";
+var endpointUrl = "";
 var client;
 var the_session, the_subscription;
 
-// function OPCUAClientInit( Url, maxRetry, initialDelay, maxDelay){
-//     endpointUrl = Url;
-//     client = OPCUAClient.create({
-//             endpoint_must_exist: false,
-
-//             keepSessionAlive: true,
-//             requestedSessionTimeout: 60000,
-
-//             connectionStrategy: {
-//             maxRetry: maxRetry,
-//             initialDelay: initialDelay,
-//             maxDelay: maxDelay
-//             } 
-//     });
-
-//     client.on("connection_reestablished",function() {
-//             console.log(chalk.bgWhite.red(" !!!!!!!!!!!!!!!!!!!!!!!!  CONNECTION RE-ESTABLISHED !!!!!!!!!!!!!!!!!!!"));
-//         });
-//     client.on("backoff", function (number, delay) {
-//             console.log(chalk.bgWhite.yellow("backoff  attempt #"),number, " retrying in ",delay/1000.0," seconds");
-//         });
-// }
-
-// function OPCUAConnect(){
-//      try {
-
-//         client.connect(endpointUrl, function (err) {
-//             if(err){
-//                 console.log(" cannot connect to endpoint :" , endpointUrl );
-//             }
-//             else{
-//                 console.log("connected !");
-//             }
-//         });
-
-//         client.createSession( function(err, session) {
-//             if(err) {
-//                 console.log( err.message );
-//             }
-//             the_session = session;
-//         });
-
-//         the_session.browse("RootFolder", function(err, browseResult) {
-//            if(!err) {
-//                console.log("Browsing rootfolder: ");
-//                for(let reference of browseResult.references) {
-//                    console.log( reference.browseName.toString(), reference.nodeId.toString());
-//                }
-//            }
-//        });
-
-//     }
-//     catch (err) {
-//         console.log("Err =", err);
-//     }
-
-// ...
 export {
 mainss as main,
 readString,
@@ -75,21 +18,12 @@ readFloat
 
 // }
 
-function mainss() {
+function mainss( settingJson ) {
+        endpointUrl = settingJson.url;
 
-        const client = opcua.OPCUAClient.create({
-            endpoint_must_exist: false,
-
-            keepSessionAlive: true,
-            requestedSessionTimeout: 60000,
-
-            connectionStrategy: {
-            maxRetry: 10000000,
-            initialDelay: 100,
-            maxDelay: 1000
-            },
-
-        }); 
+        const client = opcua.OPCUAClient.create(
+            settingJson.SettingOPC
+        ); 
 
     async.series([
 
@@ -99,17 +33,21 @@ function mainss() {
         client.connect(endpointUrl,function (err) {
             if(err) {
                 console.log(" cannot connect to endpoint :" , endpointUrl );
+                WriteLogFlie("OPC cannot connect to endpoint :" + endpointUrl );
             } else {
                 console.log("connected !");
+                WriteLogFlie("OPC connected !");
             }
             callback(err);
         });
 
         client.on("connection_reestablished",function() {
-            console.log(chalk.bgWhite.red(" !!!!!!!!!!!!!!!!!!!!!!!!  CONNECTION RE-ESTABLISHED !!!!!!!!!!!!!!!!!!!"));
+            console.log(" !!!!!!!!!!!!!!!!!!!!!!!!  CONNECTION RE-ESTABLISHED !!!!!!!!!!!!!!!!!!!");
+            WriteLogFlie("OPC CONNECTION RE-ESTABLISHED");
         });
         client.on("backoff", function (number, delay) {
-            console.log(chalk.bgWhite.yellow("backoff  attempt #"),number, " retrying in ",delay/1000.0," seconds");
+            console.log("backoff  attempt #",number, " retrying in ",delay/1000.0," seconds");
+            WriteLogFlie("OPC backoff  attempt #" + number + " retrying in " + delay/1000.0 + " seconds");
         });
     },
 
@@ -121,18 +59,20 @@ function mainss() {
             }
             console.log("session timeout = ",session.timeout);
             the_session.on("keepalive",function(state) {
-                console.log((chalk.yellow("KeepAlive state="),state.toString()," pending request on server = "), the_subscription.publish_engine.nbPendingPublishRequests);
+                console.log("KeepAlive state=",state.toString()," pending request on server = ", the_subscription.publish_engine.nbPendingPublishRequests);
+                WriteLogFlie("OPC KeepAlive state=" + state.toString() + " pending request on server = " + the_subscription.publish_engine.nbPendingPublishRequests);
 
             });
             the_session.on("session_closed" ,function(statusCode) {
             
-                console.log(chalk.yellow("Session has closed : statusCode = "), statusCode ? statusCode.toString() : "????");
+                console.log("Session has closed : statusCode = ", statusCode ? statusCode.toString() : "????");
+                WriteLogFlie("OPC Session has closed : statusCode = " + statusCode ? statusCode.toString() : "????");
 
             });
             callback(err);
         });
     },
-
+/*
     function(callback) {
        the_session.browse("RootFolder", function(err, browseResult) {
            if(!err) {
@@ -145,13 +85,15 @@ function mainss() {
        });
     },
     function(callback) {
-       the_session.readVariableValue("ns=2;s=Channel4.Device1.asd", function(err, dataValue) {
+       the_session.readVariableValue("ns=2;s=Channel1.Device1.Tag1", function(err, dataValue) {
            if (!err) {
                console.log(" free mem % = " , dataValue.toString());
            }
            callback(err);
        });
     },
+    */
+
     ]) ;
 
     
@@ -159,15 +101,8 @@ function mainss() {
 
 async function readString() {
     var data;
-    data = await the_session.readVariableValue("ns=2;s=Channel4.Device1.asd");
+    data = await the_session.readVariableValue("ns=2;s=Channel1.Device1.Tag1");
     return data;
-    //    const maxAge = 0;
-    //     const nodeToRead = {
-    //       nodeId: "ns=2;s=Channel4.Device1.asd",
-    //       attributeId: AttributeIds.Value
-    //     };
-    //     const dataValue = session.read(nodeToRead, maxAge);
-    //     console.log(" value " , dataValue.toString());
 };
 
 async function readBool() {
