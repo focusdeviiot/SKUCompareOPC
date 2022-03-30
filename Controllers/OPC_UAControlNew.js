@@ -136,6 +136,11 @@ async function clientMonitorTest() {
              attributeId: opcua.AttributeIds.Value
     };
 
+    const itemToMonitor2 = {
+             nodeId: opcua.resolveNodeId("ns=2;s=Channel1.Device1.Tag2"),
+             attributeId: opcua.AttributeIds.Value
+    };
+
     const monitoringParamaters = {
              samplingInterval: 100,
              discardOldest: true,
@@ -149,7 +154,23 @@ async function clientMonitorTest() {
              (err, monitoredItem) => {
                monitoredItem.on("changed", function(dataValue) {
                  console.log(
-                   "monitored item changed:  % free mem = ",
+                   "monitored item TAG1 changed:  % free mem = ",
+                   dataValue.value.value
+                 );
+            });
+
+
+        }
+    );
+
+    V_subscription.monitor(
+             itemToMonitor2,
+             monitoringParamaters,
+             opcua.TimestampsToReturn.Both,
+             (err, monitoredItem) => {
+               monitoredItem.on("changed", function(dataValue) {
+                 console.log(
+                   "monitored item TAG2 changed:  % free mem = ",
                    dataValue.value.value
                  );
             });
