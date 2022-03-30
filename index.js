@@ -55,6 +55,17 @@ app.get('/OPC_Browsing', async (req, res) => {
     }
 });
 
+app.get('/OPC_Monitortest', async (req, res) => {
+    try {
+        await OPCUAc.clientMonitorTest();
+        res.send("Hello OPCUA!");
+    }
+    catch(err) {
+        console.log(err);
+        await res.send(err.message);
+    }
+});
+
 app.get('/OPC_Disconnect', async (req, res) => {
     try {
         await OPCUAc.clientDisconnect();

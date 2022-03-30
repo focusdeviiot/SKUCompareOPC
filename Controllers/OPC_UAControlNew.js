@@ -1,4 +1,7 @@
 import opcua from 'node-opcua';
+import { WriteLogFlie } from './WRJsonControl.js';
+import async from 'async';
+
 var endpointUrl2;
 var V_client;
 var V_session;
@@ -101,6 +104,62 @@ async function clientMonitor(nodeId) {
         });
 }
 
+async function clientMonitorTest() {
+    
+    const subscriptionParameters = {
+            maxNotificationsPerPublish: 10,
+            priority: 10,
+            publishingEnabled: true,
+            requestedLifetimeCount: 1000,
+            requestedMaxKeepAliveCount: 12,
+            requestedPublishingInterval: 100,
+    };
+
+    V_subscription = await V_session.createSubscription2(subscriptionParameters)
+
+    V_subscription
+           .on("started", () => {
+             console.log(
+               "subscription started for 2 seconds - subscriptionId=",
+               V_subscription.subscriptionId
+             );
+           })
+           .on("keepalive", function() {
+             console.log("subscription keepalive");
+           })
+           .on("terminated", function() {
+             console.log("terminated");
+           });
+    
+    const itemToMonitor = {
+             nodeId: opcua.resolveNodeId("ns=2;s=Channel1.Device1.Tag1"),
+             attributeId: opcua.AttributeIds.Value
+    };
+
+    const monitoringParamaters = {
+             samplingInterval: 100,
+             discardOldest: true,
+             queueSize: 10
+    };
+
+    V_subscription.monitor(
+             itemToMonitor,
+             monitoringParamaters,
+             opcua.TimestampsToReturn.Both,
+             (err, monitoredItem) => {
+               monitoredItem.on("changed", function(dataValue) {
+                 console.log(
+                   "monitored item changed:  % free mem = ",
+                   dataValue.value.value
+                 );
+            });
+
+
+        }
+    );
+    
+}
+
 
 async function clientDisconnect( ) {
     try {
@@ -118,5 +177,6 @@ clientConnect,
 clientBrowse,
 clientReadValues,
 clientReadValues2,
-clientDisconnect
+clientMonitorTest,
+clientDisconnect,
 }
